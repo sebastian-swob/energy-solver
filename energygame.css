@@ -1,45 +1,33 @@
-.css-ampel {
-	display: inline-block;
-	width: 8px;
-	height: 8px;
-	border-radius: 1px;
-	position: relative;
-	background-color: black;
-	zoom: 1.7;
-}
 
-.css-ampel span {
-	content: "";
-	color: white;
-	position: absolute;
-	border-radius: 2px;
-	width: 6px;
-	height: 6px;
-	left: 1px;
-}
+	.css-ampel {
+	  display: inline-block;
+	  width: 8px;
+	  height: 8px;
+	  border-radius: 1px;
+	  position: relative;
+	  background-color: black;
+	  zoom: 1.7;
+	}
 
-.css-ampel span {
-	top: 1px;
-	background-color: green;
-	background-color: dimgrey;
-}
+	.css-ampel span {
+		content: "";
+		color: white;
+		position: absolute;
+		border-radius: 2px;
+		width: 6px;
+		height: 6px;
+		left: 1px;
+	}    
 
-.green span {
-	background-color: limegreen;
-	box-shadow: 0 0 2px limegreen;
-}
+	.css-ampel span {
+		top: 1px;
+		background-color: green;
+		background-color: dimgrey;
+	}    
 
-table,
-th,
-td {
-	border: 1px solid black;
-	padding: 10px;
-}
-
-td {
-	text-align: center;
-}
-
-input {
-	text-align: center;
-}
+	.green span {
+		background-color: limegreen;
+		box-shadow: 0 0 2px limegreen;
+	}
+	
+	
