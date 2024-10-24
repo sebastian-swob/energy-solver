@@ -1,33 +1,103 @@
+.css-ampel {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 1px;
+	position: relative;
+	background-color: black;
+	zoom: 1.7;
+}
 
-	.css-ampel {
-	  display: inline-block;
-	  width: 8px;
-	  height: 8px;
-	  border-radius: 1px;
-	  position: relative;
-	  background-color: black;
-	  zoom: 1.7;
-	}
+.css-ampel span {
+	content: "";
+	color: white;
+	position: absolute;
+	border-radius: 2px;
+	width: 6px;
+	height: 6px;
+	left: 1px;
+}
 
-	.css-ampel span {
-		content: "";
-		color: white;
-		position: absolute;
-		border-radius: 2px;
-		width: 6px;
-		height: 6px;
-		left: 1px;
-	}    
+.css-ampel span {
+	top: 1px;
+	background-color: green;
+	background-color: dimgrey;
+}
 
-	.css-ampel span {
-		top: 1px;
-		background-color: green;
-		background-color: dimgrey;
-	}    
+.green span {
+	background-color: limegreen;
+	box-shadow: 0 0 2px limegreen;
+}
 
-	.green span {
-		background-color: limegreen;
-		box-shadow: 0 0 2px limegreen;
-	}
-	
-	
+p {
+	margin: 2px 0;
+}
+
+h2 {
+	margin: 2px 0;
+}
+
+h3 {
+	background-color: grey;
+
+	margin: 2px 0;
+}
+
+h4 {
+	margin: 2px 0;
+}
+
+.container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	padding: 20px;
+}
+
+.section {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 30px;
+	width: 100%;
+}
+
+.select-container {
+	flex-basis: 25%;
+}
+
+.select-container select {
+	width: 100%;
+}
+
+.tables-container {
+	flex-basis: 100%;
+	display: flex;
+	flex-direction: column;
+	/* Stack tables vertically */
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.table th,
+.table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+.table th {
+	background-color: #f4f4f4;
+}
+
+
+.select-container {
+	flex-basis: 100%;
+	flex-wrap: wrap;
+}
+
+.select-container select {
+	width: calc(10% - 10px);
+}
