@@ -3,336 +3,593 @@
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 	<script src="energygame.js"></script>
 	<link rel="stylesheet" href="energygame.css">
 	<title>EnergyGame4web new</title>
 </head>
 
 <body>
-	<h2 style="margin-bottom: 5px;">ToDo</h1>
-		<p>1: calculate emissions etc.</p>
-		<p>2: calculate solar thermal</p>
-		<p>3: cost calculations</p>
-		<p>4: correct space heat load - is too high for old buildings (thermal cap problem?)</p>
-		<p>5: check and update all values</p>
-		<p>6: el consumption of space heat distribution</p>
-		<p>8: output graphs and sankey diagrams</p>
+	<h1>EnergyGame4web</h1>
+	<!-- todo-list -->
+	<details>  
+		<summary>ToDo</summary>
+			<ol type="1">
+				<li>bar-graphs yearly and monthly</li>
+				<li>check space heat load - might be too high for old buildings (thermal cap problem?)</li>
+				<li>check and update all values</li>
+				<li>el consumption of space heat distribution</li>
+				<li>sankey diagrams</li>
+			</ol>  
+	</details>
 
-		<h1>EnergyGame4web</h1>
+	<!-- grid that holds and wraps overall control and overall results -->
+    <div class="grid-container2"> 
+		<!-- Overall control block -->
+		<div class="grid-item"> 
+			<table>
+				<tr>
+					<td colspan="4">Click the following button to see the function in action</td>
+				</tr>
+				<tr>
+					<td rowspan="2"><button onclick="recalculate()">Recalculate</button></td>
+					<td>
+						<span class="css-ampel" id="elload-ok"><span></span></span>
+						<span>el-load &ensp;</span>
+					</td>
+					<td>
+						<span class="css-ampel" id="build-ok"><span></span></span>
+						<span>building &ensp;</span>
+					</td>
+					<td>
+						<span class="css-ampel" id="dhw-ok"><span></span></span>
+						<span>dhw &ensp;</span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span class="css-ampel" id="heat-sys-ok"><span></span></span>
+						<span>heat-sys &ensp;</span>
+					</td>
+					<td>
+						<span class="css-ampel" id="pv-ok"><span></span></span>
+						<span>pv &ensp;</span>
+					</td>
+					<td>
+						<span class="css-ampel" id="mobility-ok"><span></span></span>
+						<span>mobility &ensp;</span>
+					</td>
 
-		<p>Click the following button to see the function in action</p>
-		<button onclick="recalculate()">Recalculate</button>
-		<span>&ensp;&ensp;</span>
-		<span class="css-ampel" id="elload-ok"><span></span></span>
-		<span>el-load &ensp;</span>
-		<span class="css-ampel" id="build-ok"><span></span></span>
-		<span>building &ensp;</span>
-		<span class="css-ampel" id="dhw-ok"><span></span></span>
-		<span>dhw &ensp;</span>
-		<span class="css-ampel" id="pv-ok"><span></span></span>
-		<span>pv &ensp;</span>
-		<span class="css-ampel" id="self-con-ok"><span></span></span>
-		<span>self-con &ensp;</span>
-		<span class="css-ampel" id="heat-sys-ok"><span></span></span>
-		<span>heat-sys &ensp;</span>
+					<td>
+						<span class="css-ampel" id="home-bat-ok"><span></span></span>
+						<span>home-battery &ensp;</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<!-- Overall results block -->
+		<div class="grid-item"> 
+			<h4>Total Balance</h4>
+			<table id='TotBal' class="table">
+				<tr>
+					<th>Energieträger<br></th>
+					<th>Endenergie<br>kWh/a</th>
+					<th>Prim-En nicht-ern<br>kWh/a</th>
+					<th>EnDK-Gewicht<br>kWh/a</th>
+					<th>GWP<br>kgCO2-eq/a</th>
+					<th>cost<br>CHF/a</th>
+				</tr>
+				<tr>
+					<td>Fuel4Heat</td>
+					<td id='final-energy-fuel-heat'></td>
+					<td id='prim-energy-fuel-heat'></td>
+					<td id='EnDK-fuel-heat'></td>
+					<td id='GWP-fuel-heat'></td>
+					<td id='cost-fuel-heat'></td>
+				</tr>
+				<tr>
+					<td>Fuel4Car</td>
+					<td id='final-energy-fuel-car'></td>
+					<td id='prim-energy-fuel-car'></td>
+					<td id='EnDK-fuel-car'></td>
+					<td id='GWP-fuel-car'></td>
+					<td id='cost-fuel-car'></td>
+				</tr>
+				<tr>
+					<td>elFromGrid</td>
+					<td id='final-energy-elgrid'></td>
+					<td id='prim-energy-elgrid'></td>
+					<td id='EnDK-elgrid'></td>
+					<td id='GWP-elgrid'></td>
+					<td id='cost-elgrid'></td>
+				</tr>
+				<tr>
+					<td>elOnRoad</td>
+					<td id='final-energy-elroad'></td>
+					<td id='prim-energy-elroad'></td>
+					<td id='EnDK-elroad'></td>
+					<td id='GWP-elroad'></td>
+					<td id='cost-elroad'></td>
+				</tr>
+					<td>elPVtoGrid</td>
+					<td id='final-energy-elPv'></td>
+					<td id='prim-energy-elPv'></td>
+					<td id='EnDK-elPv'></td>
+					<td id='GWP-elPv'></td>
+					<td id='cost-elPv'></td>
+				</tr>
+				<tr>
+					<td>total2</td>
+					<td id='final-energy-tot2'></td>
+					<td id='prim-energy-tot2'></td>
+					<td id='EnDK-tot2'></td>
+					<td id='GWP-tot2'></td>
+					<td id='cost-tot2'></td>					
+				</tr>
+			</table>
+		</div>
+	</div>
 
-		<div class="container">
-			<!-- Repeat this section 12 times -->
-			<div class="section">
-				<!-- Left: Select elements -->
-				<div class="select-container">
-					<h3>Elektrische Apparate</h3>
-					<h4>Küche</h4>
-					<label for="dishwash">&ensp; Geschirrspüler:</label>
-					<select name="dishwash" id="dishwash">
-						<option value="350">alt</option>
-						<option value="84">ErP D</option>
-						<option value="73">ErP C</option>
-						<option value="54">ErP A</option>
-					</select>
-					<label for="fridge">&ensp; Kühlschrank:</label>
-					<select name="fridge" id="fridge">
-						<option value="500">alt</option>
-						<option value="219">ErP E</option>
-						<option value="201">ErP D</option>
-					</select>
-					<label for="oven">&ensp; Backofen:</label>
-					<select name="oven" id="oven">
-						<option value="160">alt</option>
-						<option value="108">ErP A</option>
-						<option value="83">ErP A+</option>
-					</select>
-					<h4>Kochen</h4>
-					<label for="stove">&ensp; Kochfeld:</label>
-					<select name="stove" id="stove">
-						<option value="1.0">Gusseisenplatte</option>
-						<option value="0.95">Glaskeramik</option>
-						<option value="0.8">Induktion</option>
-					</select>
-					<label for="pan">&ensp; Kochtopf:</label>
-					<select name="pan" id="pan">
-						<option value="1.0">Stahltopf</option>
-						<option value="0.85">Dampfkochtopf</option>
-						<option value="0.57">Isolierkochtopf</option>
-					</select>
-					<label for="cover">&ensp; Deckel:</label>
-					<select name="cover" id="cover">
-						<option value="1.0">ohne Deckel</option>
-						<option value="0.70">mit Deckel</option>
-					</select>
-					<label for="eggs">&ensp; Eierkochen:</label>
-					<select name="eggs" id="eggs">
-						<option value="30">wasserbedeckt ohne Deckel</option>
-						<option value="11">Ogi-Ei</option>
-						<option value="8">Eierkocher</option>
-					</select>
+	<!-- foldable section electric appliances -->
+	<details><summary>Elektrische Apparate</summary> 
+		<!-- grid container that hols el. appliance blocks -->
+		<div class="grid-container2"> 
+			<!--grid item that holds el. appliance settings -->
+			<div class="grid-item">  
+				<h4>Küche</h4>
+				<label for="dishwash">&ensp; Geschirrspüler:</label>
+				<select name="dishwash" id="dishwash">
+					<option value="350">alt</option>
+					<option value="84">ErP D</option>
+					<option value="73">ErP C</option>
+					<option value="54">ErP A</option>
+				</select>
+				<label for="fridge">&ensp; Kühlschrank:</label>
+				<select name="fridge" id="fridge">
+					<option value="500">alt</option>
+					<option value="219">ErP E</option>
+					<option value="201">ErP D</option>
+				</select>
+				<label for="oven">&ensp; Backofen:</label>
+				<select name="oven" id="oven">
+					<option value="160">alt</option>
+					<option value="108">ErP A</option>
+					<option value="83">ErP A+</option>
+				</select>
+				<h4>Kochen</h4>
+				<label for="stove">&ensp; Kochfeld:</label>
+				<select name="stove" id="stove">
+					<option value="1.0">Gusseisenplatte</option>
+					<option value="0.95">Glaskeramik</option>
+					<option value="0.8">Induktion</option>
+				</select>
+				<label for="pan">&ensp; Kochtopf:</label>
+				<select name="pan" id="pan">
+					<option value="1.0">Stahltopf</option>
+					<option value="0.85">Dampfkochtopf</option>
+					<option value="0.57">Isolierkochtopf</option>
+				</select>
+				<label for="cover">&ensp; Deckel:</label>
+				<select name="cover" id="cover">
+					<option value="1.0">ohne Deckel</option>
+					<option value="0.70">mit Deckel</option>
+				</select>
+				<label for="eggs">&ensp; Eierkochen:</label>
+				<select name="eggs" id="eggs">
+					<option value="30">wasserbedeckt ohne Deckel</option>
+					<option value="11">Ogi-Ei</option>
+					<option value="8">Eierkocher</option>
+				</select>
 
-					<p>nicht implementiert: Dunstabzugshaube & Kartoffeln garen & aufwärmen</p>
-					<h4>Waschküche und Keller</h4>
-					<label for="washmash">&ensp; Waschmaschine:</label>
-					<select name="washmash" id="washmash">
-						<option value="250">alt</option>
-						<option value="73">ErP D</option>
-						<option value="51">ErP B</option>
-						<option value="46">ErP A</option>
-					</select>
-					<label for="tumbler">&ensp; Wäschetrockner:</label>
-					<select name="tumbler" id="tumbler">
-						<option value="650">alt</option>
-						<option value="240">ErP A+</option>
-						<option value="195">ErP A++</option>
-						<option value="150">ErP A+++</option>
-					</select>
-					<label for="freezer">&ensp; Gefriertruhe:</label>
-					<select name="freezer" id="freezer">
-						<option value="460">alt</option>
-						<option value="222">ErP E</option>
-						<option value="160">ErP D</option>
-					</select>
-					<h4>Wohnzimmer</h4>
-					<label for="light">&ensp; Leuchten:</label>
-					<select name="light" id="light">
-						<option value="800">alt / Glühbirnen</option>
-						<option value="560">Halogen (G)</option>
-						<option value="160">Leuchtstoffröhren (F)</option>
-						<option value="120">LED (C)</option>
-					</select>
-					<label for="vacuumc">&ensp; Staubsauger:</label>
-					<select name="vacuumc" id="vacuumc">
-						<option value="120">alt</option>
-						<option value="43">?</option>
-						<option value="35">??</option>
-					</select>
-					<label for="hifi">&ensp; Hi-Fi-Anlage:</label>
-					<select name="hifi" id="hifi">
-						<option value="100">immer standby</option>
-						<option value="37">echter Abschaltknopf</option>
-					</select>
-					<label for="tv">&ensp; Fernseher:</label>
-					<select name="tv" id="tv">
-						<option value="195">alt</option>
-						<option value="82">ErP G</option>
-						<option value="77">ErP F</option>
-					</select>
-					<h3>Warmwasser</h3>
-					<h4>Lavabo Bad</h4>
-					<label for="lavbath">&ensp; Lavabo Bad:</label>
-					<select name="lavbath" id="lavbath">
-						<option value="1">Vollstrahl</option>
-						<option value="0.7">AquaSpar</option>
-					</select>
-					<h4>Lavabo Küche</h4>
-					<label for="lavkitch">&ensp; Lavabo Bad:</label>
-					<select name="lavkitch" id="lavkitch">
-						<option value="1">Vollstrahl</option>
-						<option value="0.7">AquaSpar</option>
-					</select>
-					<h4>Dusche</h4>
-					<label for="shower">&ensp; Dusche:</label>
-					<select name="shower" id="shower">
-						<option value="1">Standard</option>
-						<option value="0.7">AquaSpar Browse</option>
-						<option value="0.7">WRG Abwasser</option>
-						<option value="0.45">WRG und AquaSpar</option>
-					</select>
+				<p>   ...nicht implementiert: Dunstabzugshaube & Kartoffeln garen & aufwärmen</p>
+				<h4>Waschküche und Keller</h4>
+				<label for="washmash">&ensp; Waschmaschine:</label>
+				<select name="washmash" id="washmash">
+					<option value="250">alt</option>
+					<option value="73">ErP D</option>
+					<option value="51">ErP B</option>
+					<option value="46">ErP A</option>
+				</select>
+				<label for="tumbler">&ensp; Wäschetrockner:</label>
+				<select name="tumbler" id="tumbler">
+					<option value="650">alt</option>
+					<option value="240">ErP A+</option>
+					<option value="195">ErP A++</option>
+					<option value="150">ErP A+++</option>
+				</select>
+				<label for="freezer">&ensp; Gefriertruhe:</label>
+				<select name="freezer" id="freezer">
+					<option value="460">alt</option>
+					<option value="222">ErP E</option>
+					<option value="160">ErP D</option>
+				</select>
+				<h4>Wohnzimmer</h4>
+				<label for="light">&ensp; Leuchten:</label>
+				<select name="light" id="light">
+					<option value="800">alt / Glühbirnen</option>
+					<option value="560">Halogen (G)</option>
+					<option value="160">Leuchtstoffröhren (F)</option>
+					<option value="120">LED (C)</option>
+				</select>
+				<label for="vacuumc">&ensp; Staubsauger:</label>
+				<select name="vacuumc" id="vacuumc">
+					<option value="120">alt</option>
+					<option value="43">?</option>
+					<option value="35">??</option>
+				</select>
+				<label for="hifi">&ensp; Hi-Fi-Anlage:</label>
+				<select name="hifi" id="hifi">
+					<option value="100">immer standby</option>
+					<option value="37">echter Abschaltknopf</option>
+				</select>
+				<label for="tv">&ensp; Fernseher:</label>
+				<select name="tv" id="tv">
+					<option value="195">alt</option>
+					<option value="82">ErP G</option>
+					<option value="77">ErP F</option>
+				</select>
+			</div>
+			<!--grid item that holds household electricity results--> 
+			<div class="grid-item">  
+				<h4>Haushaltsstrom</h4>
+				<table id='ElectricOut' class="table">
+					<tr>
+						<th>Strom Total<br>kWh/a</th>
+						<th>el. HH<br>kWh/a</th>
+						<th>el. cooking<br>kWh/a</th>
+						<th>el. ventilation<br>kWh/a</th>
+						<th>Internal Gain Electric<br>kWh/a</th>
 
-					<h3>Gebäudehülle und Heizung</h3>
-					<h4>Wärmedämmung</h4>
-					<label for="uwallins">&ensp; Dämmung Wand:</label>
-					<select name="uwallins" id="uwallins">
-						<!-- values need to be adjusted to take into account the insulating property of the wall itself with 1.2 W/m2K (R around 0.8 m2K/W) -->
-						<option value="100">1.2 W/(m2K)</option>
-						<option value="0.32">0.5 W/(m2K)</option>
-						<option value="0.17">0.25 W/(m2K)</option>
-						<option value="0.11">0.1 W/(m2K)</option>
-					</select>
-					<label for="uroof">&ensp; Dämmung Dach:</label>
-					<select name="uroof" id="uroof">
-						<option value="2">2 W/(m2K)</option>
-						<option value="0.4">0.4 W/(m2K)</option>
-						<option value="0.2">0.2 W/(m2K)</option>
-					</select>
-					<label for="uwin">&ensp; U-Wert Fenster:</label>
-					<select name="uwin" id="uwin">
-						<option value="5.8">Einfachverglasung 5.8 W/(m2K)</option>
-						<option value="2.5">Doppelverglasung 2.5 W/(m2K)</option>
-						<option value="0.9">Dreifachverglasung 0.9 W/(m2K)</option>
-					</select>
-					<h4>Lüftung</h4>
-					<label for="luftw">&ensp; Lüftung:</label>
-					<select name="luftw" id="luftw">
-						<option value="0.6">Kippfenster</option>
-						<option value="0.3">Stosslüften</option>
-						<option value="0.07">Komfortlüftung mit WRG</option>
-					</select>
-					<h4>Heizkörper-Thermostate</h4>
-					<label for="tsv">&ensp; Thermostate</label>
-					<select name="tsv" id="tsv">
-						<option value="24">keine</option>
-						<option value="22">22 °C</option>
-						<option value="20">20 °C</option>
-					</select>
+					</tr>
+					<tr>
+						<td id='eltotal'></td>
+						<td id='elhh'></td>
+						<td id='elcook'></td>
+						<td id='elvent'></td>
+						<td id='eltoheat'></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</details>
 
-					<h3>Photovoltaik und Solarthermie</h3>
-					<label for="pvinput">&ensp; Photovoltaik</label>
-					<select name="pvinput" id="pvinput">
-						<option value="0">keine</option>
-						<option value="30">30 m2 - 6 kWp</option>
-						<option value="60">60 m2 - 12 kWp</option>
-					</select>
-					<label for="soltherm">&ensp; Solarthermie</label>
-					<select name="soltherm" id="soltherm">
-						<option value="0">keine</option>
-						<option value="5">5 m2 - Warmwasser</option>
-						<option value="10">10 m2 - Heizungsunterstützung</option>
-					</select>
+	<!-- foldable section for domestic hot water -->
+	<details><summary>Warmwasser</summary> 
+		<!-- grid container that holds domestic hot water blocks -->
+		<div class="grid-container2"> 
+			<!-- domestic hot water settings -->
+			<div class="grid-item">  
+				<h4>Lavabo Bad</h4>
+				<label for="lavbath">&ensp; Lavabo Bad:</label>
+				<select name="lavbath" id="lavbath">
+					<option value="1">Vollstrahl</option>
+					<option value="0.7">AquaSpar</option>
+				</select>
+				<h4>Lavabo Küche</h4>
+				<label for="lavkitch">&ensp; Lavabo Bad:</label>
+				<select name="lavkitch" id="lavkitch">
+					<option value="1">Vollstrahl</option>
+					<option value="0.7">AquaSpar</option>
+				</select>
+				<h4>Dusche</h4>
+				<label for="shower">&ensp; Dusche:</label>
+				<select name="shower" id="shower">
+					<option value="1">Standard</option>
+					<option value="0.7">AquaSpar Browse</option>
+					<option value="0.7">WRG Abwasser</option>
+					<option value="0.45">WRG und AquaSpar</option>
+				</select>
+			</div>
+			<!-- domestic hot water results -->
+			<div class="grid-item"> 
+				<h4>Warmwasser</h4><br>
+				<table id='DHWout' class="table">
+					<tr>
+						<th>Anz. Pers.<br>#</th>
+						<th>WW Bedarf<br>kWh/a</th>
+						<th>WW Basis-Bedarf (ohne "Sparmassnahmen")<br>kWh/a</th>
+						<th>WW Speicherverlust<br>kWh/a</th>
+					</tr>
+					<tr>
+						<td id='anzpers'></td>
+						<td id='dhwtotal'></td>
+						<td id='dhwbase'></td>
+						<td id='dhwloss'></td>
+					</tr>
+				</table>
+			</div>
 
-					<h3>Heizungskeller</h3>
-					<label for="mainheat">&ensp; Hauptheizung</label>
-					<select name="mainheat" id="mainheat">
-						<option value="oil">Öl</option>
-						<option value="gas">Gas</option>
-						<option value="pellet">Pellet</option>
-						<option value="hp-air">Wärmepumpe Luft</option>
-						<option value="hp-ground">Wärmepumpe Sole</option>
-					</select>
-					<label for="boiler">&ensp; Warmwasser</label>
-					<select name="boiler" id="boiler">
-						<option value="electro">Elektroboiler</option>
-						<option value="main">an Hauptheizung</option>
-						<option value="heatpump">Wärmepumpenboiler</option>
-					</select>
-					<label for="pump">&ensp; Heizkreis-Pumpe</label>
-					<select name="pump" id="pump">
-						<option value="old">Alte Pumpe</option>
-						<option value="new">Moderne Hocheffizienzpumpe</option>
-					</select>
+		</div>
+	</details>
 
-				</div>
-				<div class="tables-container">
-
-					<h4>Wärme</h4>
+	<!-- foldable section for building shell and space heating-->
+	<details><summary>Gebäudehülle und Raumwärme</summary>
+		<!-- grid containter that holds buidlding shell and space heat blocks-->
+		<div class="grid-container2">
+			<!-- space heat settings-->
+			<div class="grid-item">
+				<h4>Wärmedämmung</h4>
+				<label for="uwallins">&ensp; Dämmung Wand:</label>
+				<select name="uwallins" id="uwallins">
+					<!-- values need to be adjusted to take into account the insulating property of the wall itself with 1.2 W/m2K (R around 0.8 m2K/W) -->
+					<option value="100">1.2 W/(m2K)</option>
+					<option value="0.32">0.5 W/(m2K)</option>
+					<option value="0.17">0.25 W/(m2K)</option>
+					<option value="0.11">0.1 W/(m2K)</option>
+				</select>
+				<label for="uroof">&ensp; Dämmung Dach:</label>
+				<select name="uroof" id="uroof">
+					<option value="2">2 W/(m2K)</option>
+					<option value="0.4">0.4 W/(m2K)</option>
+					<option value="0.2">0.2 W/(m2K)</option>
+				</select>
+				<label for="uwin">&ensp; U-Wert Fenster:</label>
+				<select name="uwin" id="uwin">
+					<option value="5.8">Einfachverglasung 5.8 W/(m2K)</option>
+					<option value="2.5">Doppelverglasung 2.5 W/(m2K)</option>
+					<option value="0.9">Dreifachverglasung 0.9 W/(m2K)</option>
+				</select>
+				<h4>Lüftung</h4>
+				<label for="luftw">&ensp; Lüftung:</label>
+				<select name="luftw" id="luftw">
+					<option value="0.6">Kippfenster</option>
+					<option value="0.3">Stosslüften</option>
+					<option value="0.07">Komfortlüftung mit WRG</option>
+				</select>
+				<h4>Heizkörper-Thermostate</h4>
+				<label for="tsv">&ensp; Thermostate</label>
+				<select name="tsv" id="tsv">
+					<option value="24">keine</option>
+					<option value="22">22 °C</option>
+					<option value="20">20 °C</option>
+				</select>
+			</div>
+			<!--space heat results-->
+			<div class="grid-item">
+				<h4>Wärme</h4><br>
 					<table id='HeatOut' class="table">
 						<tr>
 							<th>Wärme Total<br>kWh/a</th>
 							<th>Wärme spez.<br>kWh/(m2a)</th>
 							<th>Intern. Gewinne elektrisch<br>kWh/a</th>
-							<th>Warmwasser<br>kWh/a</th>
 						</tr>
 						<tr>
 							<td id='heattotal'></td>
 							<td id='heatspec'></td>
 							<td id='eltoheat1'></td>
-							<td id='dhwtotal'></td>
 						</tr>
 					</table>
-					<br>
-					<h4>Haushaltsstrom</h4>
-					<table id='ElectricOut' class="table">
-						<tr>
-							<th>Strom Total<br>kWh/a</th>
-							<th>Strom sepz.<br>kWh/(m2a)</th>
-							<th>Internal Gain Electric<br>kWh/a</th>
-
-						</tr>
-						<tr>
-							<td id='eltotal'></td>
-							<td id='elspec'></td>
-							<td id='eltoheat'></td>
-						</tr>
-					</table>
-					<br>
-					<h4>Heizsystem</h4>
-					<table id='HeatSysOut' class="table">
-						<tr>
-							<th>Energieträger<br></th>
-							<th>Endenergie<br>kWh/a</th>
-							<th>Prim-En nicht-ern<br>kWh/a</th>
-							<th>EnFK-Gewicht<br>kWh/a</th>
-							<th>GWP<br>kgCO2-eq/a</th>
-						</tr>
-						<tr>
-							<td>oil</td>
-							<td id='final-energy-oil'></td>
-							<td id='prim-energy-oil'></td>
-							<td id='EnFK-oil'></td>
-							<td id='GWP-oil'></td>
-						</tr>
-						<tr>
-							<td>gas</td>
-							<td id='final-energy-gas'></td>
-							<td id='prim-energy-gas'></td>
-							<td id='EnFK-gas'></td>
-							<td id='GWP-gas'></td>
-						</tr>
-						<tr>
-							<td>pellet</td>
-							<td id='final-energy-pellet'></td>
-							<td id='prim-energy-pellet'></td>
-							<td id='EnFK-pellet'></td>
-							<td id='GWP-pellet'></td>
-						</tr>
-						<tr>
-							<td>heat-pump el</td>
-							<td id='final-energy-hp'></td>
-							<td id='prim-energy-hp'></td>
-							<td id='EnFK-hp'></td>
-							<td id='GWP-hp'></td>
-						</tr>
-						<tr>
-							<td>electric rod</td>
-							<td id='final-energy-elrod'></td>
-							<td id='prim-energy-elrod'></td>
-							<td id='EnFK-elrod'></td>
-							<td id='GWP-elrod'></td>
-						</tr>
-						<tr>
-							<td>total</td>
-							<td id='final-energy-tot'></td>
-							<td id='prim-energy-tot'></td>
-							<td id='EnFK-tot'></td>
-							<td id='GWP-tot'></td>
-						</tr>
-					</table>
-					<br>
-					<h4>PV</h4>
-					<table id='PVout' class="table">
-						<tr>
-							<th>PVyield<br>kWh/a</th>
-							<th>PVtoHome<br>kWh/a</th>
-							<th>PVtoGrid<br>kWh/a</th>
-							<th>GridToHome<br>kWh/a</th>
-
-						</tr>
-						<tr>
-							<td id='pvyield'></td>
-							<td id='pvtohome'></td>
-							<td id='pvtogrid'></td>
-							<td id='gridtohome'></td>
-						</tr>
-					</table>
-				</div>
 			</div>
+		</div>
+	</details>
+
+	<!-- foldable section for technical room (heating central)-->
+	<details><summary>Heizungskeller</summary>
+		<div class="grid-container2">
+			<!--heating central settings-->
+			<div class="grid-item">
+				<label for="mainheat">&ensp; Hauptheizung</label>
+				<select name="mainheat" id="mainheat">
+					<option value="oil">Öl</option>
+					<option value="gas">Gas</option>
+					<option value="pellet">Pellet</option>
+					<option value="hp-air">Wärmepumpe Luft</option>
+					<option value="hp-ground">Wärmepumpe Sole</option>
+				</select>
+				<label for="boiler">&ensp; Warmwasser</label>
+				<select name="boiler" id="boiler">
+					<option value="electro">Elektroboiler</option>
+					<option value="main">an Hauptheizung</option>
+					<option value="heatpump">Wärmepumpenboiler</option>
+				</select>
+				<label for="pump">&ensp; Heizkreis-Pumpe</label>
+				<select name="pump" id="pump">
+					<option value="old">Alte Pumpe</option>
+					<option value="new">Moderne Hocheffizienzpumpe</option>
+				</select>
+			</div>
+			<!--heating central - results-->
+			<div class="grid-item">
+				<h4>Heizsystem</h4>
+				<table id='HeatSysOut' class="table">
+					<tr>
+						<th>Energieträger<br></th>
+						<th>Endenergie<br>kWh/a</th>
+						<th>Prim-En nicht-ern<br>kWh/a</th>
+						<th>EnDK-Gewicht<br>kWh/a</th>
+						<th>GWP<br>kgCO2-eq/a</th>
+					</tr>
+					<tr>
+						<td>oil</td>
+						<td id='final-energy-oil'></td>
+						<td id='prim-energy-oil'></td>
+						<td id='EnDK-oil'></td>
+						<td id='GWP-oil'></td>
+					</tr>
+					<tr>
+						<td>gas</td>
+						<td id='final-energy-gas'></td>
+						<td id='prim-energy-gas'></td>
+						<td id='EnDK-gas'></td>
+						<td id='GWP-gas'></td>
+					</tr>
+					<tr>
+						<td>pellet</td>
+						<td id='final-energy-pellet'></td>
+						<td id='prim-energy-pellet'></td>
+						<td id='EnDK-pellet'></td>
+						<td id='GWP-pellet'></td>
+					</tr>
+					<tr>
+						<td>heat-pump el</td>
+						<td id='final-energy-hp'></td>
+						<td id='prim-energy-hp'></td>
+						<td id='EnDK-hp'></td>
+						<td id='GWP-hp'></td>
+					</tr>
+					<tr>
+						<td>electric rod</td>
+						<td id='final-energy-elrod'></td>
+						<td id='prim-energy-elrod'></td>
+						<td id='EnDK-elrod'></td>
+						<td id='GWP-elrod'></td>
+					</tr>
+					<tr>
+						<td>solar thermal</td>
+						<td id='final-energy-soltherm'></td>
+						<td id='prim-energy-soltherm'>0</td>
+						<td id='EnDK-soltherm'>0</td>
+						<td id='GWP-soltherm'>0</td>
+					</tr>
+					<tr>
+						<td>total</td>
+						<td id='final-energy-tot'></td>
+						<td id='prim-energy-tot'></td>
+						<td id='EnDK-tot'></td>
+						<td id='GWP-tot'></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</details>
+
+	<!-- foldable section for solar energy-->
+	<details><summary>Solarenergie</summary>
+		<div class="grid-container2">
+			<!--solar energy settings-->
+			<div class="grid-item">
+				<label for="pvinput">&ensp; Photovoltaik</label>
+				<select name="pvinput" id="pvinput">
+					<option value="0">keine</option>
+					<option value="30">30 m2 - 6 kWp</option>
+					<option value="60">60 m2 - 12 kWp</option>
+				</select>
+				<label for="battery">&ensp; Batteriespeicher</label>
+				<select name="battery" id="battery">
+					<option value="0">keiner</option>
+					<option value="5">5 kWh</option>
+					<option value="10">10 kWh</option>
+					<option value="15">15 kWh</option>
+				</select>
+				<br>
+				<label for="soltherm">&ensp; Solarthermie</label>
+				<select name="soltherm" id="soltherm">
+					<option value="0">keine</option>
+					<option value="5">5 m2 - Warmwasser</option>
+					<option value="10">10 m2 - Heizungsunterstützung</option>
+				</select>
+
+
+			</div>
+			<!--solar energy: results-->
+			<div class="grid-item">
+				<h4>PV</h4>
+				<table id='PVout' class="table">
+					<tr>
+						<th>PVyield<br>kWh/a</th>
+						<th>PVtoHome<br>kWh/a</th>
+						<th>PVtoGrid<br>kWh/a</th>
+						<th>GridToHome<br>kWh/a</th>
+
+					</tr>
+					<tr>
+						<td id='pvyield'></td>
+						<td id='pvtohome'></td>
+						<td id='pvtogrid'></td>
+						<td id='gridtohome'></td>
+					</tr>
+				</table>
+				<h4>Battery</h4>
+				<table id='batbalance' class="table">
+					<tr>
+						<th>PVtoBat<br>kWh/a</th>
+						<th>BatToHome<br>kWh/a</th>
+						<th>BatLossTot<br>kWh/a</th>
+						<th>PvToSelfCon<br>kWh/a</th>
+						<th>GridToSelfCon<br>kWh/a</th>
+					</tr>
+					<tr>
+						<td id='pvtobat'></td>
+						<td id='battohome'></td>
+						<td id='batloss'></td>
+						<td id='pvtoselfcon'></td>
+						<td id='gridtoselfcon'></td>	
+					</tr>
+				</table>
+				<h4>Solar Thermal</h4>
+				<table id='solarthermal' class="table">
+					<tr>
+						<th>SolThermToSpaceHeat<br>kWh/a</th>
+						<th>SolThermToDHW<br>kWh/a</th>
+						<th>SolThermSpec<br>kWh/m2a</th>
+					</tr>
+					<tr>
+						<td id='solthermtosh'></td>
+						<td id='solthermtodhw'></td>
+						<td id='solthermspec'></td>
+					</tr>
+				</table>
+
+
+
+			</div>
+		</div>
+	</details>
+
+	<!-- foldable section for Mobility-->
+	<details><summary>Mobility</summary>
+		<div class="grid-container2">
+			<!--Mobility settings-->
+			<div class="grid-item">
+				<label for="mobInput">&ensp; Mobilität</label>
+				<select name="mob" id="mob">
+					<option value="0">Benziner</option>
+					<option value="1">Elektrofahrzeug</option>
+				</select>
+
+			</div>
+			<!--eMobility: results-->
+			<div class="grid-item">
+
+				<h4>eMobility charging</h4>
+				<table id='eMobCharging' class="table">
+					<tr>
+						<th>Charged<br>kWh/a</th>
+						<th>Charged by PV<br>kWh/a</th>
+						<th>Charged by grid at home<br>kWh/a</th>
+						<th>Charged on the road<br>kWh/a</th>
+					</tr>
+					<tr>
+						<td id='eMobCharge'></td>
+						<td id='eMobChargePV'></td>
+						<td id='eMobChargeGrid'></td>
+						<td id='eMobChargeHome'></td>
+					</tr>
+				</table>
+
+			<h4>eMobility discharge and loss</h4>
+				<table id='eMobDischarging' class="table">
+					<tr>
+						<th>Discharged<br>kWh/a</th>
+						<th>V2H<br>kWh/a</th>
+						<th>Losses<br>kWh/a</th>
+						<th>CapChange<br>kWh/a</th>
+					</tr>
+					<tr>
+						<td id='eMobDischarge'></td>
+						<td id='eMobToHome'></td>
+						<td id='eMobLoss'></td>
+						<td id='eMobCapChange'></td>
+						
+					</tr>
+				</table>
+
+
+			</div>
+		</div>
+	</details>
+
+	<div id="tester" style="width:600px;height:250px;"></div>
 </body>
 
 </html>
